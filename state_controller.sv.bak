@@ -1,0 +1,41 @@
+module state_controller(input  logic [7:0] keycode,
+                        input  logic       Clk,
+                        input  logic       is_collision,
+                        output logic [1:0] State);
+
+
+enum logic [2:0] {Start_Screen,
+                  Play_Game,
+                  Game_Over} State, Next_State;
+
+always_ff @ (posedge Clk)
+	begin
+		if (Reset) 
+			State <= Start_Screen;
+		else 
+			State <= Next_state;
+	end
+
+always_comb
+	begin 
+		// Default next state is staying at current state
+		Next_state = State;
+
+        //Assign next state
+        unique case (State)
+            Start_Screen : 
+                if (keycode == 8'd44)
+                    Next_State = Play_Game;
+            Play_Game :
+                if (is_collision)
+                    Next_State = Game_Over;
+            Game_Over : begin
+                if (keycode == 8'd44)
+                    Next_State = Play_Game;
+                else if (keyCode == 8'd40)
+                    Next_State = Start_Screen;
+            end
+        endcase
+    end
+
+endmodule

@@ -1,0 +1,36 @@
+module testbench();
+    
+    timeunit 10ns;  // how long one unit of time is
+
+    timeprecision 1ns;
+
+    // inputs
+    logic CLOCK_50;
+    logic [3:0]  KEY;        
+    logic [6:0]  HEX0, HEX1;
+ 
+    logic [7:0]  VGA_R,       
+                 VGA_G,       
+                 VGA_B;       
+    logic   VGA_CLK,     
+            VGA_SYNC_N,  
+            VGA_BLANK_N, 
+            VGA_VS,      
+            VGA_HS;       
+
+    final_project test(.*);
+        
+    always begin 
+        #1 CLOCK_50 = ~CLOCK_50;
+    end
+
+    initial begin
+        CLOCK_50 = 0;
+    end 
+        
+    //set test vectors
+    initial begin
+        
+    end
+endmodule
+        

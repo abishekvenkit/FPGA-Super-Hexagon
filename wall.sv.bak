@@ -1,0 +1,32 @@
+module wall (input  logic  [9:0] radius,
+             input  logic  [2:0] sextant,
+            //  input  logic        move_walls,
+             input  logic  [3:0] KEY,  //debug
+             input  logic  [9:0] DrawY, //debug
+             output logic        is_wall);
+    
+    logic [499:0] wall_array [0:5];
+
+    assign is_wall = wall_array[sextant][radius];
+
+    always_ff @ (posedge drawY[8]) begin
+        if(~KEY[3]) begin
+            wall_array[0] <= {wall_array[0][0], wall_array[0][499:1]};
+            wall_array[1] <= {wall_array[1][0], wall_array[1][499:1]};
+            wall_array[2] <= {wall_array[2][0], wall_array[2][499:1]};
+            wall_array[3] <= {wall_array[3][0], wall_array[3][499:1]};
+            wall_array[4] <= {wall_array[4][0], wall_array[4][499:1]};
+            wall_array[5] <= {wall_array[5][0], wall_array[5][499:1]};
+        end
+    end
+
+    initial begin
+        wall_array[0][499:400] = 100'hffffffff00000000ffffffff00000000;
+        wall_array[2][499:400] = 100'hffffffff00000000ffffffff00000000;
+        wall_array[4][499:400] = 100'hffffffff00000000ffffffff00000000;
+        wall_array[1][499:400] = 100'h00000000ffffffff00000000ffffffff;
+        wall_array[3][499:400] = 100'h00000000ffffffff00000000ffffffff;
+        wall_array[5][499:400] = 100'h00000000ffffffff00000000ffffffff;
+    end
+        
+endmodule

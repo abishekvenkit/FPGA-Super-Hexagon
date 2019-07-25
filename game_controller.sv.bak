@@ -1,0 +1,63 @@
+module game_controller(input  logic        Clk,
+                       input  logic        Reset_h,
+                       input  logic  [9:0] DrawY,
+                       input  logic        VGA_VS,
+                       output logic  [9:0] rotation_offset,
+                       output logic  [4:0] Saturation_offset,
+                       output logic  [4:0] Luminance_offset,
+                       output logic  [5:0] Hue_offset, 
+                       output logic        move_walls
+                       );
+    
+    logic [9:0] frame_counter;
+    
+    assign Hue_offset        = frame_counter[8:3]; //every 8 frames / 7.5 Hz / full spectrum in 8.53 seconds
+    assign Luminance_offset  = (frame_counter[7])? 5'sd1 : -5'sd1; 
+    assign Saturation_offset = (frame_counter[6])? 5'sd2 : -5'sd2; 
+
+    always_ff @ (posedge VGA_VS) begin //at every frame / 60Hz
+        frame_counter <= frame_counter + 9'd1;
+    end
+
+    logic [6:0] move_walls_counter
+    logic [6:0] move_walls_counter_reset
+
+    always_ff @ (posedge DrawY[4]) begin
+        if (Reset_h) begin 
+            move_walls_counter <= 7'd0;
+            move_walls_counter_reset <= 7'd25;
+            move_walls <= 1'b0;
+        end
+
+        if (move_walls_counter == move_walls_counter_reset) begin
+            move_walls_counter <= 7'd0;
+            move_walls <= ~move_walls;
+        end
+
+        else begin
+            move_walls_counter <= move_walls_counter + 7'd1;
+        end
+    end
+
+    always_ff @ (posedge frame_counter[8]) begin
+        if(move_walls_counter_reset > 7'd8)
+            move_walls_counter_reset <= move_walls_counter_reset - 7'd1;
+    end
+
+    logic rotation_direction;
+
+    always_ff @ (posedge VGA_VS) begin
+        if (Reset_h) rotation_offset <= 10'd0;
+
+        else rotation_offset <= (rotation_direction)? 
+                                 rotation_offset + 10'd3 :
+                                 rotation_offset - 10'd3 ;
+    end
+
+    always_ff @ (posedge frame_counter[9]) begin
+        if (Reset_h) rotation_direction = 1'b0;
+        else rotation_direction <= ~rotation_direction;
+    end
+
+endmodule
+            
